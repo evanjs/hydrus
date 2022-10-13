@@ -1,4 +1,5 @@
 import os
+import pathlib
 import typing
 
 from hydrus.core import HydrusConstants as HC
@@ -24,7 +25,10 @@ def GetSidecarPath( actual_file_path: str, suffix: str, file_extension: str ):
     path_components.append( file_extension )
     
     return '.'.join( path_components )
-    
+
+def GetSidecarPathAlt(actual_file_path: str):
+    final_path = pathlib.Path(actual_file_path)
+    return final_path.with_suffix('.txt')
 
 class SingleFileMetadataExporterMedia( object ):
     
@@ -251,6 +255,34 @@ class SingleFileMetadataImporterExporterMediaTags( HydrusSerialisable.Serialisab
 
 HydrusSerialisable.SERIALISABLE_TYPES_TO_OBJECT_TYPES[ HydrusSerialisable.SERIALISABLE_TYPE_METADATA_SINGLE_FILE_IMPORTER_EXPORTER_MEDIA_TAGS ] = SingleFileMetadataImporterExporterMediaTags
 
+
+def handle_sd_metadata(path):
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            all_lines = f.read().splitlines()
+            prompt_tags = [f"positive: {p.strip()}" for p in all_lines[0].split(",")]
+            prompt = f"prompt: {all_lines[0]}"
+            negative_prompt = all_lines[1]
+            only_negative_tags = [nt.strip() for nt in negative_prompt.replace("Negative prompt: ", "").split(",")]
+            negative_tags = [f"negative: {n}" for n in only_negative_tags]
+
+            settings = all_lines[2].split(",")
+
+            all_tags = [prompt]
+            all_tags.extend(prompt_tags)
+            all_tags.append(negative_prompt)
+            all_tags.extend(negative_tags)
+            all_tags.extend(settings)
+
+            raw_text = os.linesep.join(all_tags)
+
+    except Exception as e:
+        raise Exception('Could not import SD metadata from {}: {}'.format(path, str(e)))
+
+    rows = HydrusText.DeserialiseNewlinedTexts(raw_text)
+    return rows
+
+
 class SingleFileMetadataImporterExporterTXT( HydrusSerialisable.SerialisableBase, SingleFileMetadataExporterSidecar, SingleFileMetadataImporterSidecar ):
     
     SERIALISABLE_TYPE = HydrusSerialisable.SERIALISABLE_TYPE_METADATA_SINGLE_FILE_IMPORTER_EXPORTER_TXT
@@ -292,11 +324,13 @@ class SingleFileMetadataImporterExporterTXT( HydrusSerialisable.SerialisableBase
         
     
     def Import( self, actual_file_path: str ) -> typing.Collection[ str ]:
-        
-        path = GetSidecarPath( actual_file_path, self._suffix, 'txt' )
-        
-        if not os.path.exists( path ):
-            
+        standard_path = GetSidecarPath(actual_file_path, self._suffix, 'txt')
+        path_alt = GetSidecarPathAlt(actual_file_path)
+        if os.path.exists(path_alt):
+            return handle_sd_metadata(path_alt)
+        elif os.path.exists(standard_path):
+            path = standard_path
+        else:
             return []
             
         
