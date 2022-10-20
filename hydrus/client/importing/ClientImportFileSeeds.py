@@ -1640,6 +1640,24 @@ class FileSeed( HydrusSerialisable.SerialisableBase ):
         
         if tag_import_options is None:
             
+            # Try to get metadata from image
+            params = HydrusFileHandling.HydrusImageHandling.GetParametersFromFile(self.file_seed_data)
+            import hydrus.client.exporting.ClientExportingFiles
+
+            if isinstance(params, str):
+                parsed_tags = hydrus.client.exporting.ClientExportingFiles.ClientExportingMetadata.handle_sd_metadata_text(params)
+                if parsed_tags is not None:
+                    clean_tags = list([x for x in HydrusTags.CleanTags(parsed_tags.splitlines())])
+                    tag_dict = dict(zip(iter(clean_tags), iter(clean_tags)))
+                    self._external_additional_service_keys_to_tags[b'local tags'] = tag_dict
+            elif isinstance(params, dict):
+                parsed_tags = hydrus.client.exporting.ClientExportingFiles.ClientExportingMetadata.handle_sd_novelai_metadata_text(params)
+                if parsed_tags is not None:
+                    clean_tags = list([x for x in HydrusTags.CleanTags(parsed_tags)])
+                    tag_dict = dict(zip(iter(clean_tags), iter(clean_tags)))
+                    self._external_additional_service_keys_to_tags[b'local tags'] = tag_dict
+
+
             for ( service_key, content_updates ) in ClientData.ConvertServiceKeysToTagsToServiceKeysToContentUpdates( ( hash, ), self._external_additional_service_keys_to_tags ).items():
                 
                 service_keys_to_content_updates[ service_key ].extend( content_updates )

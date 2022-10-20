@@ -1,6 +1,8 @@
+import json
 import os
 import pathlib
 import typing
+from typing import TextIO
 
 from hydrus.core import HydrusConstants as HC
 from hydrus.core import HydrusData
@@ -256,31 +258,76 @@ class SingleFileMetadataImporterExporterMediaTags( HydrusSerialisable.Serialisab
 HydrusSerialisable.SERIALISABLE_TYPES_TO_OBJECT_TYPES[ HydrusSerialisable.SERIALISABLE_TYPE_METADATA_SINGLE_FILE_IMPORTER_EXPORTER_MEDIA_TAGS ] = SingleFileMetadataImporterExporterMediaTags
 
 
-def handle_sd_metadata(path):
+def handle_sd_metadata_path(path):
     try:
         with open(path, 'r', encoding='utf-8') as f:
-            all_lines = f.read().splitlines()
-            prompt_tags = [f"positive: {p.strip()}" for p in all_lines[0].split(",")]
-            prompt = f"prompt: {all_lines[0]}"
-            negative_prompt = all_lines[1]
-            only_negative_tags = [nt.strip() for nt in negative_prompt.replace("Negative prompt: ", "").split(",")]
-            negative_tags = [f"negative: {n}" for n in only_negative_tags]
-
-            settings = all_lines[2].split(",")
-
-            all_tags = [prompt]
-            all_tags.extend(prompt_tags)
-            all_tags.append(negative_prompt)
-            all_tags.extend(negative_tags)
-            all_tags.extend(settings)
-
-            raw_text = os.linesep.join(all_tags)
+            raw_text = handle_sd_metadata_text_io(f)
 
     except Exception as e:
         raise Exception('Could not import SD metadata from {}: {}'.format(path, str(e)))
 
     rows = HydrusText.DeserialiseNewlinedTexts(raw_text)
     return rows
+
+def handle_sd_metadata_text_io(textio: TextIO):
+    all_lines = textio.read().splitlines()
+    prompt_tags = [f"positive: {p.strip()}" for p in all_lines[0].split(",")]
+    prompt = f"prompt: {all_lines[0]}"
+    negative_prompt = all_lines[1]
+    only_negative_tags = [nt.strip() for nt in negative_prompt.replace("Negative prompt: ", "").split(",")]
+    negative_tags = [f"negative: {n}" for n in only_negative_tags]
+
+    settings = all_lines[2].split(",")
+    all_tags = [prompt]
+    all_tags.extend(prompt_tags)
+    all_tags.append(negative_prompt)
+    all_tags.extend(negative_tags)
+    all_tags.extend(settings)
+    raw_text = os.linesep.join(all_tags)
+    return raw_text
+
+
+def handle_sd_metadata_text(all_lines: str):
+    lines = all_lines.split("\n")
+    prompt_tags = [f"positive: {p.strip()}" for p in lines[0].split(",")]
+    prompt = f"prompt: {lines[0]}"
+    negative_prompt = lines[1]
+    only_negative_tags = [nt.strip() for nt in negative_prompt.replace("Negative prompt: ", "").split(",")]
+    negative_tags = [f"negative: {n}" for n in only_negative_tags]
+    settings = lines[2].split(",")
+    all_tags = [prompt]
+    all_tags.extend(prompt_tags)
+    all_tags.append(negative_prompt)
+    all_tags.extend(negative_tags)
+    all_tags.extend(settings)
+
+    raw_text = os.linesep.join(all_tags)
+    return raw_text
+
+def handle_sd_novelai_metadata_text(data):
+    title = data['Title']
+    description = data['Description']
+    prompt = f"prompt: {description}"
+    comment = data['Comment']
+    parameters = json.loads(comment)
+    prompt_tags = [f"positive: {p.strip()}" for p in description.split(",") if len(p) > 0]
+    negative_tags = [f"negative: {n.strip()}" for n in parameters['uc'].split(',') if len(n) > 0]
+    negative_prompt = f"Negative prompt: {parameters['uc']}"
+    all_tags = [prompt]
+    all_tags.extend(prompt_tags)
+    all_tags.append(negative_prompt)
+    all_tags.extend(negative_tags)
+
+    settings = []
+    settings.append(f"denoising strength: {parameters['strength']}")
+    settings.append(f"steps: {parameters['steps']}")
+    settings.append(f"seed: {parameters['seed']}")
+    settings.append(f"cfg scale: {parameters['scale']}")
+    settings.append(f"noise: {parameters['noise']}")
+    settings.append(f"sampler: {parameters['sampler']}")
+    all_tags.extend(settings)
+
+    return all_tags
 
 
 class SingleFileMetadataImporterExporterTXT( HydrusSerialisable.SerialisableBase, SingleFileMetadataExporterSidecar, SingleFileMetadataImporterSidecar ):
@@ -327,7 +374,7 @@ class SingleFileMetadataImporterExporterTXT( HydrusSerialisable.SerialisableBase
         standard_path = GetSidecarPath(actual_file_path, self._suffix, 'txt')
         path_alt = GetSidecarPathAlt(actual_file_path)
         if os.path.exists(path_alt):
-            return handle_sd_metadata(path_alt)
+            return handle_sd_metadata_path(path_alt)
         elif os.path.exists(standard_path):
             path = standard_path
         else:

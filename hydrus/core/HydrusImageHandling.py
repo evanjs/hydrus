@@ -7,6 +7,8 @@ import numpy.core.multiarray # important this comes before cv!
 import struct
 import warnings
 
+import hydrus.core.HydrusFileHandling
+
 try:
     
     # more hidden imports for pyinstaller
@@ -873,6 +875,23 @@ def GetTimesToPlayGIFFromPIL( pil_image: PILImage.Image ) -> int:
     
     return times_to_play_gif
     
+def GetParametersFromImage( pil_image: PILImage.Image):
+    if 'parameters' in pil_image.info.keys():
+        return pil_image.info.get('parameters')
+    elif 'Comment' in pil_image.info.keys():
+        return pil_image.info
+
+def GetParametersFromFile(path, mime=None):
+    if mime is None:
+        mime = hydrus.core.HydrusFileHandling.GetMime(path)
+    if mime == HC.IMAGE_PNG:
+        pil_image = GeneratePILImage(path, dequantize=False)
+        params = GetParametersFromImage(pil_image)
+    else:
+        params = None
+    return params
+
+
 def HasICCProfile( pil_image: PILImage.Image ) -> bool:
     
     if 'icc_profile' in pil_image.info:
