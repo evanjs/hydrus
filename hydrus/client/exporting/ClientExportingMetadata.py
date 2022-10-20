@@ -290,35 +290,48 @@ def handle_sd_metadata_text_io(textio: TextIO):
 def handle_sd_metadata_text(all_lines: str):
     lines = all_lines.split("\n")
     prompt_tags = [f"positive: {p.strip()}" for p in lines[0].split(",")]
-    prompt = f"prompt: {lines[0]}"
-    negative_prompt = lines[1]
-    only_negative_tags = [nt.strip() for nt in negative_prompt.replace("Negative prompt: ", "").split(",")]
+    only_negative_tags = [nt.strip() for nt in lines[1].replace("Negative prompt: ", "").split(",")]
     negative_tags = [f"negative: {n}" for n in only_negative_tags]
     settings = lines[2].split(",")
-    all_tags = [prompt]
+
+    all_tags = []
     all_tags.extend(prompt_tags)
-    all_tags.append(negative_prompt)
     all_tags.extend(negative_tags)
     all_tags.extend(settings)
 
     raw_text = os.linesep.join(all_tags)
     return raw_text
 
-def handle_sd_novelai_metadata_text(data):
-    title = data['Title']
+def handle_sd_prompts_text(all_lines: str) -> dict:
+    lines = all_lines.split("\n")
+    prompt = lines[0]
+    negative_prompt = lines[1]
+
+    return {"prompt": prompt, "negative prompt": negative_prompt}
+
+def handle_sd_novelai_prompts_text(data) -> dict:
     description = data['Description']
     prompt = f"prompt: {description}"
     comment = data['Comment']
     parameters = json.loads(comment)
+    negative_prompt = f"Negative prompt: {parameters['uc']}"
+
+    return {"prompt": prompt, "negative prompt": negative_prompt}
+
+def handle_sd_novelai_metadata_text(data):
+    title = data['Title']
+    description = data['Description']
+    comment = data['Comment']
+    parameters = json.loads(comment)
     prompt_tags = [f"positive: {p.strip()}" for p in description.split(",") if len(p) > 0]
     negative_tags = [f"negative: {n.strip()}" for n in parameters['uc'].split(',') if len(n) > 0]
-    negative_prompt = f"Negative prompt: {parameters['uc']}"
-    all_tags = [prompt]
+
+    all_tags = []
     all_tags.extend(prompt_tags)
-    all_tags.append(negative_prompt)
     all_tags.extend(negative_tags)
 
     settings = []
+    settings.append(f"title: {title}")
     settings.append(f"denoising strength: {parameters['strength']}")
     settings.append(f"steps: {parameters['steps']}")
     settings.append(f"seed: {parameters['seed']}")

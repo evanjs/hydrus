@@ -24,6 +24,7 @@ from hydrus.client import ClientConstants as CC
 from hydrus.client import ClientData
 from hydrus.client import ClientParsing
 from hydrus.client import ClientTime
+from hydrus.client.exporting import ClientExportingFiles
 from hydrus.client.importing import ClientImportFiles
 from hydrus.client.importing import ClientImporting
 from hydrus.client.importing.options import FileImportOptions
@@ -35,6 +36,33 @@ from hydrus.client.networking import ClientNetworkingFunctions
 
 FILE_SEED_TYPE_HDD = 0
 FILE_SEED_TYPE_URL = 1
+
+
+def get_tags_from_metadata(params):
+    tag_dict = {}
+    if isinstance(params, str):
+        parsed_tags = ClientExportingFiles.ClientExportingMetadata.handle_sd_metadata_text(params)
+        if parsed_tags is not None:
+            clean_tags = list([x for x in HydrusTags.CleanTags(parsed_tags.splitlines())])
+            tag_dict = dict(zip(iter(clean_tags), iter(clean_tags)))
+    elif isinstance(params, dict):
+        parsed_tags = ClientExportingFiles.ClientExportingMetadata.handle_sd_novelai_metadata_text(params)
+        if parsed_tags is not None:
+            clean_tags = list([x for x in HydrusTags.CleanTags(parsed_tags)])
+            tag_dict = dict(zip(iter(clean_tags), iter(clean_tags)))
+    return tag_dict
+
+def get_notes_from_metadata(params):
+    prompts_dict = {}
+    if isinstance(params, str):
+        parsed_prompts = ClientExportingFiles.ClientExportingMetadata.handle_sd_prompts_text(params)
+        if parsed_prompts is not None:
+            prompts_dict = parsed_prompts
+    elif isinstance(params, dict):
+        parsed_prompts = ClientExportingFiles.ClientExportingMetadata.handle_sd_novelai_prompts_text(params)
+        if parsed_prompts is not None:
+            prompts_dict = parsed_prompts
+    return prompts_dict
 
 class FileSeed( HydrusSerialisable.SerialisableBase ):
     
@@ -1638,23 +1666,15 @@ class FileSeed( HydrusSerialisable.SerialisableBase ):
         
         media_result = None
         
-        if tag_import_options is None:
-            
             # Try to get metadata from image
             params = HydrusFileHandling.HydrusImageHandling.GetParametersFromFile(self.file_seed_data)
-            import hydrus.client.exporting.ClientExportingFiles
+        tag_dict = get_tags_from_metadata(params)
+        note_dict = get_notes_from_metadata(params)
 
-            if isinstance(params, str):
-                parsed_tags = hydrus.client.exporting.ClientExportingFiles.ClientExportingMetadata.handle_sd_metadata_text(params)
-                if parsed_tags is not None:
-                    clean_tags = list([x for x in HydrusTags.CleanTags(parsed_tags.splitlines())])
-                    tag_dict = dict(zip(iter(clean_tags), iter(clean_tags)))
+        if tag_import_options is None:
+            if isinstance(params, str) and len(tag_dict.items()) > 0:
                     self._external_additional_service_keys_to_tags[b'local tags'] = tag_dict
-            elif isinstance(params, dict):
-                parsed_tags = hydrus.client.exporting.ClientExportingFiles.ClientExportingMetadata.handle_sd_novelai_metadata_text(params)
-                if parsed_tags is not None:
-                    clean_tags = list([x for x in HydrusTags.CleanTags(parsed_tags)])
-                    tag_dict = dict(zip(iter(clean_tags), iter(clean_tags)))
+            elif isinstance(params, dict) and len(tag_dict.items()) > 0:
                     self._external_additional_service_keys_to_tags[b'local tags'] = tag_dict
 
 
@@ -1678,7 +1698,10 @@ class FileSeed( HydrusSerialisable.SerialisableBase ):
                 
                 did_work = True
                 
-            
+        # If any prompts exist, add them to the notes to be created on import
+        if len(note_dict.items()) > 0:
+            note_import_options = NoteImportOptions.NoteImportOptions()
+            self._names_and_notes_dict.update(note_dict)
         
         if note_import_options is not None:
             
