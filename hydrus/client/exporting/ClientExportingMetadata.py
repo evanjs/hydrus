@@ -1,6 +1,7 @@
 import json
 import os
 import pathlib
+import re
 import typing
 from typing import TextIO
 
@@ -14,6 +15,9 @@ from hydrus.core import HydrusText
 from hydrus.client import ClientStrings
 from hydrus.client.media import ClientMediaResult
 from hydrus.client.metadata import ClientTags
+
+# `\s+`: strip leading and trailing spaces from the raw negative prompt
+insensitive_negative_prompt = re.compile(r"Negative prompt:\s+", re.IGNORECASE)
 
 def GetSidecarPath( actual_file_path: str, suffix: str, file_extension: str ):
     
@@ -301,17 +305,20 @@ def handle_sd_metadata_text(all_lines: str):
 
 def handle_sd_prompts_text(all_lines: str) -> dict:
     lines = all_lines.split("\n")
-    prompt = lines[0]
-    negative_prompt = lines[1]
+    prompt = lines[0].strip()
+    negative_prompt = lines[1].strip()
 
-    return {"prompt": prompt, "negative prompt": negative_prompt}
+    # Remove the "Negative prompt:" string from the start of the prompt string
+    raw_negative_prompt = insensitive_negative_prompt.sub("", negative_prompt)
+
+    return {"prompt": prompt, "negative prompt": raw_negative_prompt}
 
 def handle_sd_novelai_prompts_text(data) -> dict:
     description = data['Description']
-    prompt = f"prompt: {description}"
+    prompt = description
     comment = data['Comment']
     parameters = json.loads(comment)
-    negative_prompt = f"Negative prompt: {parameters['uc']}"
+    negative_prompt = parameters['uc']
 
     return {"prompt": prompt, "negative prompt": negative_prompt}
 
