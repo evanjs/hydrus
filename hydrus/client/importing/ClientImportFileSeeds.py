@@ -1666,8 +1666,8 @@ class FileSeed( HydrusSerialisable.SerialisableBase ):
         
         media_result = None
         
-            # Try to get metadata from image
-            params = HydrusFileHandling.HydrusImageHandling.GetParametersFromFile(self.file_seed_data)
+        # Try to get metadata from image
+        params = HydrusFileHandling.HydrusImageHandling.GetParametersFromFile(self.file_seed_data)
         tag_dict = get_tags_from_metadata(params)
         note_dict = get_notes_from_metadata(params)
 
