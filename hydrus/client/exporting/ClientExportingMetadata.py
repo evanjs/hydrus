@@ -272,15 +272,12 @@ def handle_sd_metadata_path(path):
 def handle_sd_metadata_text_io(textio: TextIO):
     all_lines = textio.read().splitlines()
     prompt_tags = [f"positive: {p.strip()}" for p in all_lines[0].split(",")]
-    prompt = f"prompt: {all_lines[0]}"
-    negative_prompt = all_lines[1]
-    only_negative_tags = [nt.strip() for nt in negative_prompt.replace("Negative prompt: ", "").split(",")]
+    only_negative_tags = [nt.strip() for nt in all_lines[1].replace("Negative prompt: ", "").split(",")]
     negative_tags = [f"negative: {n}" for n in only_negative_tags]
 
     settings = all_lines[2].split(",")
-    all_tags = [prompt]
+    all_tags = []
     all_tags.extend(prompt_tags)
-    all_tags.append(negative_prompt)
     all_tags.extend(negative_tags)
     all_tags.extend(settings)
     raw_text = os.linesep.join(all_tags)
