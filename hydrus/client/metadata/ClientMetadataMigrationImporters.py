@@ -461,7 +461,14 @@ class SingleFileMetadataImporterTXT( HydrusSerialisable.SerialisableBase, Single
     
     def GetExpectedSidecarPath( self, actual_file_path: str ):
         
-        return ClientMetadataMigrationCore.GetSidecarPath( actual_file_path, self._suffix, 'txt' )
+        path_standard = ClientMetadataMigrationCore.GetSidecarPath( actual_file_path, self._suffix, 'txt' )
+        path_alt = ClientMetadataMigrationCore.GetSidecarPathAlt(actual_file_path)
+        path = None
+        if os.path.exists(path_alt):
+            path = path_alt
+        elif os.path.exists(path_standard):
+            path = path_standard
+        return path
         
     
     def Import( self, actual_file_path: str ) -> typing.Collection[ str ]:
