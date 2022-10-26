@@ -1,6 +1,7 @@
 import bisect
 import collections
 import itertools
+import json
 import os
 import random
 import re
@@ -10,7 +11,7 @@ import traceback
 import typing
 import urllib.parse
 
-from hydrus.core import HydrusConstants as HC
+from hydrus.core import HydrusConstants as HC, HydrusText
 from hydrus.core import HydrusData
 from hydrus.core import HydrusExceptions
 from hydrus.core import HydrusFileHandling
@@ -24,6 +25,7 @@ from hydrus.client import ClientConstants as CC
 from hydrus.client import ClientData
 from hydrus.client import ClientParsing
 from hydrus.client import ClientTime
+from hydrus.client.exporting import ClientExportingFiles
 from hydrus.client.importing import ClientImportFiles
 from hydrus.client.importing import ClientImporting
 from hydrus.client.importing.options import FileImportOptions
@@ -35,6 +37,36 @@ from hydrus.client.networking import ClientNetworkingFunctions
 
 FILE_SEED_TYPE_HDD = 0
 FILE_SEED_TYPE_URL = 1
+
+# `\s+`: strip leading and trailing spaces from the raw negative prompt
+insensitive_negative_prompt = re.compile(r"Negative prompt:\s+", re.IGNORECASE)
+
+
+def get_tags_from_metadata(params):
+    tag_dict = {}
+    if isinstance(params, str):
+        parsed_tags = handle_sd_metadata_text(params)
+        if parsed_tags is not None:
+            clean_tags = list([x for x in HydrusTags.CleanTags(parsed_tags.splitlines())])
+            tag_dict = dict(zip(iter(clean_tags), iter(clean_tags)))
+    elif isinstance(params, dict):
+        parsed_tags = handle_sd_novelai_metadata_text(params)
+        if parsed_tags is not None:
+            clean_tags = list([x for x in HydrusTags.CleanTags(parsed_tags)])
+            tag_dict = dict(zip(iter(clean_tags), iter(clean_tags)))
+    return tag_dict
+
+def get_notes_from_metadata(params):
+    prompts_dict = {}
+    if isinstance(params, str):
+        parsed_prompts = handle_sd_prompts_text(params)
+        if parsed_prompts is not None:
+            prompts_dict = parsed_prompts
+    elif isinstance(params, dict):
+        parsed_prompts = handle_sd_novelai_prompts_text(params)
+        if parsed_prompts is not None:
+            prompts_dict = parsed_prompts
+    return prompts_dict
 
 class FileSeed( HydrusSerialisable.SerialisableBase ):
     
@@ -890,7 +922,7 @@ class FileSeed( HydrusSerialisable.SerialisableBase ):
         file_import_job = ClientImportFiles.FileImportJob( temp_path, file_import_options )
         
         file_import_status = file_import_job.DoWork( status_hook = status_hook )
-        
+        self.get_file_metadata(temp_path)
         self.SetStatus( file_import_status.status, note = file_import_status.note )
         self.SetHash( file_import_status.hash )
         
@@ -1660,8 +1692,9 @@ class FileSeed( HydrusSerialisable.SerialisableBase ):
                 
                 did_work = True
                 
-            
-        
+        if self._names_and_notes_dict.items().__len__() > 0:
+            if note_import_options is None:
+                note_import_options = NoteImportOptions.NoteImportOptions()
         if note_import_options is not None:
             
             if media_result is None:
@@ -1686,6 +1719,21 @@ class FileSeed( HydrusSerialisable.SerialisableBase ):
         
         return did_work
         
+    def get_file_metadata(self, file_path):
+        # Try to get metadata from image
+        params = HydrusFileHandling.HydrusImageHandling.GetParametersFromFile(file_path)
+        tag_dict = get_tags_from_metadata(params)
+        note_dict = get_notes_from_metadata(params)
+
+        if isinstance(params, str) and len(tag_dict.items()) > 0:
+            self._external_additional_service_keys_to_tags[b'local tags'] = tag_dict
+        elif isinstance(params, dict) and len(tag_dict.items()) > 0:
+            self._external_additional_service_keys_to_tags[b'local tags'] = tag_dict
+
+        # If any prompts exist, add them to the notes to be created on import
+        if len(note_dict.items()) > 0:
+            self._names_and_notes_dict.update(note_dict)
+
     
 HydrusSerialisable.SERIALISABLE_TYPES_TO_OBJECT_TYPES[ HydrusSerialisable.SERIALISABLE_TYPE_FILE_SEED ] = FileSeed
 
@@ -2930,3 +2978,95 @@ def GenerateFileSeedCachesStatus( file_seed_caches: typing.Iterable[ FileSeedCac
     
     return fscs
     
+def handle_sd_metadata_path(path):
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            raw_text = handle_sd_metadata_text_io(f)
+
+    except Exception as e:
+        raise Exception('Could not import SD metadata from {}: {}'.format(path, str(e)))
+
+    rows = HydrusText.DeserialiseNewlinedTexts(raw_text)
+    return rows
+
+def handle_sd_metadata_text_io(textio: typing.TextIO):
+    all_lines = textio.read().splitlines()
+    prompt_tags = [f"positive: {p.strip()}" for p in all_lines[0].split(",")]
+    only_negative_tags = [nt.strip() for nt in all_lines[1].replace("Negative prompt: ", "").split(",")]
+    negative_tags = [f"negative: {n}" for n in only_negative_tags]
+
+    settings = all_lines[2].split(",")
+    all_tags = []
+    all_tags.extend(prompt_tags)
+    all_tags.extend(negative_tags)
+    all_tags.extend(settings)
+    raw_text = os.linesep.join(all_tags)
+    return raw_text
+
+
+def handle_sd_metadata_text(all_lines: str):
+    lines = all_lines.split("\n")
+    all_tags = []
+
+    prompt_tags = [f"positive: {p.strip()}" for p in lines[0].split(",")]
+    all_tags.extend(prompt_tags)
+
+    maybe_negative = list([line for line in lines if str(line).startswith("Negative")])
+    if len(maybe_negative) > 0:
+        negative_prompt = maybe_negative[0]
+        only_negative_tags = [nt.strip() for nt in negative_prompt.replace("Negative prompt: ", "").split(",")]
+        negative_tags = [f"negative: {n}" for n in only_negative_tags]
+        all_tags.extend(negative_tags)
+
+    maybe_settings = list([line for line in lines if str(line).startswith("Steps")])
+    if len(maybe_settings) > 0:
+        settings = maybe_settings[0].split(", ")
+        all_tags.extend(settings)
+
+    raw_text = os.linesep.join(all_tags)
+    return raw_text
+
+def handle_sd_prompts_text(all_lines: str) -> dict:
+    notes = {}
+    lines = all_lines.split("\n")
+    notes["prompt"] = lines[0].strip()
+    maybe_negative = list([line for line in lines if str(line).startswith("Negative")])
+    if len(maybe_negative) > 0:
+        negative_prompt = maybe_negative[0].strip()
+        # Remove the "Negative prompt:" string from the start of the prompt string
+        notes["negative prompt"] = insensitive_negative_prompt.sub("", negative_prompt)
+
+    return notes
+
+def handle_sd_novelai_prompts_text(data) -> dict:
+    description = data['Description']
+    prompt = description
+    comment = data['Comment']
+    parameters = json.loads(comment)
+    negative_prompt = parameters['uc']
+
+    return {"prompt": prompt, "negative prompt": negative_prompt}
+
+def handle_sd_novelai_metadata_text(data):
+    title = data['Title']
+    description = data['Description']
+    comment = data['Comment']
+    parameters = json.loads(comment)
+    prompt_tags = [f"positive: {p.strip()}" for p in description.split(",") if len(p) > 0]
+    negative_tags = [f"negative: {n.strip()}" for n in parameters['uc'].split(',') if len(n) > 0]
+
+    all_tags = []
+    all_tags.extend(prompt_tags)
+    all_tags.extend(negative_tags)
+
+    settings = []
+    settings.append(f"title: {title}")
+    settings.append(f"denoising strength: {parameters['strength']}")
+    settings.append(f"steps: {parameters['steps']}")
+    settings.append(f"seed: {parameters['seed']}")
+    settings.append(f"cfg scale: {parameters['scale']}")
+    settings.append(f"noise: {parameters['noise']}")
+    settings.append(f"sampler: {parameters['sampler']}")
+    all_tags.extend(settings)
+
+    return all_tags
