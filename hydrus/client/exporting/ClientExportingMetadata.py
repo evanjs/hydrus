@@ -311,14 +311,16 @@ def handle_sd_metadata_text(all_lines: str):
     return raw_text
 
 def handle_sd_prompts_text(all_lines: str) -> dict:
+    notes = {}
     lines = all_lines.split("\n")
-    prompt = lines[0].strip()
-    negative_prompt = lines[1].strip()
+    notes["prompt"] = lines[0].strip()
+    maybe_negative = list([line for line in lines if str(line).startswith("Negative")])
+    if len(maybe_negative) > 0:
+        negative_prompt = maybe_negative[0].strip()
+        # Remove the "Negative prompt:" string from the start of the prompt string
+        notes["negative prompt"] = insensitive_negative_prompt.sub("", negative_prompt)
 
-    # Remove the "Negative prompt:" string from the start of the prompt string
-    raw_negative_prompt = insensitive_negative_prompt.sub("", negative_prompt)
-
-    return {"prompt": prompt, "negative prompt": raw_negative_prompt}
+    return notes
 
 def handle_sd_novelai_prompts_text(data) -> dict:
     description = data['Description']
