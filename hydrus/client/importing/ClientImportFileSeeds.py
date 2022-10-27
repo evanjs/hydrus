@@ -11,6 +11,7 @@ import traceback
 import typing
 import urllib.parse
 
+from hydrus.client.metadata.ClientMetadataMigrationCore import get_tags_from_metadata, get_notes_from_metadata
 from hydrus.core import HydrusConstants as HC, HydrusText
 from hydrus.core import HydrusData
 from hydrus.core import HydrusExceptions
