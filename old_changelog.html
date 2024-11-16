@@ -35,6 +35,139 @@
             <h1 id="changelog"><a href="#changelog">changelog</a></h1>
             <ul>
                 <li>
+                    <h2 id="version_598"><a href="#version_598">version 598</a></h2>
+                    <ul>
+                        <li><h3>misc</h3></li>
+                        <li>I screwed up the import folder deduplication fix last week! it caused import folders that contained duplicated items (and a handful of subscriptions, and even one normal GUI session) to not be able to save back their work. nothing was damaged, _per se_, but progress was not being saved and work was stopping after the respective systems paused out of safety. I am sorry for the trouble and worry here, and I hate it when this kind of error happens. I did made a test to test this thing worked, but it wasn't good enough. I have fixed it now and I am rejigging my test procedures to explicitly check for this specific class of object type problem (issue #1624)</li>
+                        <li>fixed the duplicate filter comparison statements to obey the new 'do not use pretty (720p etc..) resolution swap-in strings' option (issue #1621)</li>
+                        <li>the 'maintenance and processing' page now has some expand/collapse stuff on its boxes to make the options page not want to be so tall on startup</li>
+                        <li>the 'edit filename tagging options' panel under the 'edit import folder' dialog now auto-populates the example filename from the actual folder's current contents. thanks to a user for pointing this out</li>
+                        <li>moved a bunch of checkboxes around in the options. `options-&gt;tags` is renamed `tag autocomplete tabs` and now just handles children and favourites. `search` is renamed `file search` and handles the 'read' autocomplete and implicit system:limit, and a new page `tag editing` is added to handle the 'write' autocomplete and various 'tag service panel' settings</li>
+                        <li>the normal search page 'selection tags' list now only computes the tags for the first n thumbnails (default 4096) on a page when you have no files selected. this saves time on mega pages when you click off a selection and also on giant import pages where new files are continually streaming in at the end. I expect this to reduce CPU and lag significantly on clients that idle looking at big import pages. you can set the n under `options-&gt;tag presentation`, including turning it off entirely. I did some misc optimisation here too, but I also found some places I can improve the general tag re-compute in future cleanup work</li>
+                        <li>I may have improved some media viewer hover window positioning, sizing, and flicker in layout, particularly on the note window</li>
+                        <li>the 'do really heavy sibling and parents calculation work in the background' daemon now waits 60 seconds after boot to start work (previously 10s). since I added the new fast sibling and parent cache (which works quick but takes some extra work to initialise), I've noticed you often get a heap of lag as this guy is initially populated right after boot. so, the primary caller now happens a little later in the boot rush and _should_ smooth out the curve a little</li>
+                        <li><h3>listbooks</h3></li>
+                        <li>I rewrote the 'ListBook' the options dialog relies on from ancient and irll-desingned wx code to a nice clean simple Qt panel</li>
+                        <li>if you have a ton of tag services, a new 'use listbook instead of tabbed notebook for tag service panels' checkbox under `options-&gt;tag editing` now lets you use the new listbook instead of the old notebook/tabbed widget in: manage tags, manage tag siblings, manage tag parents, manage tag display and application, and review tag display sync</li>
+                        <li><h3>drag and drops</h3></li>
+                        <li>moved the DnD options out of `options-&gt;gui` and to a new `exporting` panel and added a bit of text</li>
+                        <li>the BUGFIX 'secret' Discord fix is now formalised into an always-on 'set the DnD to a move flag', with a nice explanatory tooltip. it is now also always safe because it will now only ever run if you are set to export your DnDs to the temp folder</li>
+                        <li>the 'DnD temp folder' system is now cleaner and DnD temp folders will now be deleted after six hours (previously they were only cleaned up on client exit)</li>
+                        <li>added a note to the 'getting started with files' help to say you can export files with drag and drop m8</li>
+                        <li><h3>some multi-column list fixes</h3></li>
+                        <li>fixed a bad list type definition in the new auto-resolution rules UI. it thought it was the export folder dialog's list and was throwing weird errors if that list was sorted in column &gt;=4</li>
+                        <li>if a multi-column list fails to sort, it now catches and displays the error and continues with whatever was going on at the time</li>
+                        <li>if a multi-column list status is asked for a non-existing column type, the status now reports the error info and attempts its best fallback</li>
+                        <li>improved multi-column list initialisation across the board so the above problem cannot happen again (the list type was being set in two different locations, and I missed a ctrl+c/v edit)</li>
+                        <li><h3>parsing</h3></li>
+                        <li>behind the scenes, the 'subsidiary page parser' is now one object. it was a janky thing before</li>
+                        <li>the subsidiary page parsers list in the parsing edit UI now has import/export/duplicate buttons</li>
+                        <li>it doesn't matter outside of file log post order, I don't think, but subsidiary page parsers now always work in alphabetical order</li>
+                        <li>they also now name themselves specifically when they cause an error</li>
+                        <li>parsers now deduplicate the list when saying what they 'produce/parse' in UI</li>
+                        <li><h3>boring linting cleanup</h3></li>
+                        <li>tweaked my linter settings to better catch some stupid errors and put the effort into cleaning up the hundreds of long-time warnings, probably more than a thousand items of Qt Signal false-positive spam, and the actual real bugs. I am hoping to better expose future needles without a haystack of garbage in the way. I am determined to maintain a 0 error count on Unresolved References going forward</li>
+                        <li>every single unused import statement is now removed or suppressed. I'm sure there are still tangles and bad ideas generally, but everything is completely lean now</li>
+                        <li>fixed some PILImage enum references</li>
+                        <li>improved some hydrus serialisable typedefs</li>
+                        <li>fixed some exception/warning defs</li>
+                        <li>deleted some old defunct 'retry' code from subscriptions</li>
+                        <li>fixed some bitmap generation code to handle non-c-contiguous memoryviews properly</li>
+                        <li>cleaned up some html parsing to properly navigate weird stuff bs4 might put out</li>
+                        <li>fixed a stupid type error in the old HydrusTagArchive namespace code</li>
+                        <li>fixed some account type calls in _manage services_ auto-account creation</li>
+                        <li>fixed an issue with unusual tab drag and drops</li>
+                        <li>deleted the empty `TestClientData.py`</li>
+                        <li>deleted the empty `ServerServices.py`</li>
+                        <li>fixed a bunch of misc typedefs in general</li>
+                        <li><h3>boring build/source stuff</h3></li>
+                        <li>updated my Windows 'running from source' help to now say you need to put the sqlite3.dll in your actual python DLLs dir. as this is more scary than just dropping it in your hydrus install dir, I emphasise this is optional</li>
+                        <li>updated my 'requirements_server.txt', which is not used but a reference, to use the new requests and setuptools versions we recently updated to</li>
+                        <li>I am dropping support for the ancient OpenCV 2. we've had some enum monkeypatches in place for years and years, but I don't even know if 2 will even run on any modern python; it is gone now</li>
+                    </ul>
+                </li>
+                <li>
+                    <h2 id="version_597"><a href="#version_597">version 597</a></h2>
+                    <ul>
+                        <li><h3>misc</h3></li>
+                        <li>fixed an issue that caused non-empty hard drive file import file logs that were created before v595 (this typically affected import folders that are set to 'leave source alone, do not reattempt it' for any of the result actions) to lose track of their original import objects' unique IDs and thus, when given more items to possibly add (again, usually on an import folder sync), to re-add the same items one time over again and essentially double-up in size one time. this broke the ability to review the file log UI panel too, so users who noticed the behaviour was jank couldn't see what was going on. on update, all the newer duplicate items will be removed and you'll reset to the original 'already in db' etc.. stuff you had before. all file logs now check for and remove newer duplicates whenever they load or change contents. this happened because of the 'make file logs load faster' update in v595--it worked great for downloaders and subs, but local file imports use a slightly different ID system to differentiate separate objects and it was not updated correct</li>
+                        <li>the main text-fetching routine that failed to load the list UI in the above case can now recover from null results if this happens again</li>
+                        <li>file import objects now have some more safety code to ensure they are identifying themselves correctly on load</li>
+                        <li>did some more work on copying tags: the new 'always copy parents with tags' was not as helpful as I expected, so this is no longer the default when you hit Ctrl+C (it goes back to the old behaviour of just copying the top-line rows in your selection). when you open a tag selection 'copy' menu, it now lists as a separate item 'copy 2 selected and 3 parents' kind of thing if you do want parents. also, parents will no longer copy with their indent (wew), and the taglists are now deduped so you will not be inundated with tagspam. futhermore, the 'what tags do we have' taglist in the manage tags dialog, and favourites/suggestions taglists, are now more parent-aware and plugged into this system</li>
+                        <li>added Mr Bones to the frame locations list under `options-&gt;gui`. if you use him a lot, he'll now remember where he was and how big he was</li>
+                        <li>also added `manage_times_dialog`, `manage_urls_dialog`, `manage_notes_dialog`, and `export_files_frame` to the list. they will all remember last size and position by default</li>
+                        <li>the client now recovers from a missing frame location entry with a fallback and a note in the log</li>
+                        <li>rewrote the way the media viewer hover windows and their sub-controls are updated to the current media object. the old asynchronous pubsub is out, and synchronous Qt signals are in. fingers crossed this truly fixes the rare-but-annoying 'oh the ratings in the top-right hover aren't updating I guess' bug, but we'll see. I had to be stricter about the pipeline here, and I was careful to ensure it would be failsafe, so if you discover a media viewer with hover windows that simply won't switch media (they'd probably be frozen in a null state from viewer open), let me know the details!</li>
+                        <li>some built versions of the client seem unable to find their local help, so now, when a user asks to open a help page, if it seems to be missing locally, a little text with the paths involved is now written to the log</li>
+                        <li><h3>parsing</h3></li>
+                        <li>all formulae now have a 'name/description' field. this is wholly decorative and simply appears in the single- or multi-line summary of the formula in UI. all formulae start with and will initialise with a blank label</li>
+                        <li>the generic 'edit formula' panel (the one where you can change the formula type) now has import/export buttons</li>
+                        <li>updated the ZIPPER UI to use a newer single-class 'queue list' widget rather than some ten year old 'still has some wx in it' scatter of gubbins</li>
+                        <li>added import/export/duplicate capability to the 'queue list' widget, and added it for ZIPPER formulae</li>
+                        <li>also added import/export/duplicate buttons to the 'edit string processor' list!!</li>
+                        <li>'any characters' String Match objects now describe themselves with the 'such as' respective example string, with the new proviso that no String Match will give this string if it is stuck at the 'example string' default. you'll probably most see this in the manage url class dialog for components and parameters</li>
+                        <li>cleaned a bunch of this code generally</li>
+                        <li><h3>client api</h3></li>
+                        <li>fixed an issue fetching millisecond-precise timestamps in the `file_metadata` call when one of the timestamps had a null value (for instance if the file has no modified date of any kind registered)</li>
+                        <li>in the various potential duplicates calls, some simple searches (usually when one/both of two searches are system:everything) are now optimised using the same routine that happens in UI</li>
+                        <li>the client api version is now 75</li>
+                        <li><h3>Win 7 news</h3></li>
+                        <li>for Win 7 users who run from source, I believe newer the program's newer virtual environments will no longer build in Win 7. it looks like a new version of psd-tools will not compile in python 3.8, and there's also some code in newer versions of the program that 3.8 simply won't run. I think the last version that works for you is v582. we've known this train was coming for a while, so I'm afraid Win 7 guys will have to freeze at that version unless and until they update Windows or move to Linux/macOS</li>
+                        <li>I have updated the 'running from source' help to talk about this, including adding the magic git line you need to choose a specific version rather than normal git pull. this is likely the last time I will specifically support Win 7, and I suspect I will sunset pyside2 and PyQt5 testing too</li>
+                        <li><h3>Windows future build</h3></li>
+                        <li>I am releasing a future build alongside this release, just for Windows. it has new dlls for SQLite and mpv. advanced users are invited to test it out and tell me if there are any problems booting and playing media, and if there are no issues, I'll fold this into the normal build next week</li>
+                        <li>mpv: 2023-08-20 to 2024-10-20</li>
+                        <li>SQLite: 3.45.3 to 3.47.0</li>
+                        <li>these bring normal optimisations and bug fixes. I expect no huge problems (although I believe the mpv dll strictly no longer supports Win 7, but that is now moot), but please check and we'll see</li>
+                        <li><h3>boring code cleanup</h3></li>
+                        <li>in prep for duplicates auto-resolution, the five variables that go into a potential duplicates search (two file searches, the search type, the pixel dupe requirement, and the max hamming distance) are now bundled into one nice clean object that is simpler to handle and will be easier to update in future. everything that touches this stuff--the page manager, the page UI (there's a whole edit panel for the new class), the filter itself, the Client API, the db search code, all the unit tests, and now the duplicates auto-resolution system--all works on this new thing rather than throwing list of variables around</li>
+                        <li><h3>duplicates auto-resolution</h3></li>
+                        <li>I pushed this forward in a bunch of ways. nothing actually works yet, still, but if you poke around in the advanced placeholder UI, you'll see the new potential duplicates search context UI, now with side-by-side file search context panels, for the fleshed-out pixel-perfect jpeg/png default</li>
+                    </ul>
+                </li>
+                <li>
+                    <h2 id="version_596"><a href="#version_596">version 596</a></h2>
+                    <ul>
+                        <li><h3>misc</h3></li>
+                        <li>due to an ill-planned parsing update, several downloaders' hash lookups (which allow the client to quickly determine 'already in db'/'previously deleted' sometimes) broke last week. they are fixed today, sorry for the trouble!</li>
+                        <li>the fps number on the file info line, which was previously rounded always to the nearest integer, is now reported to two sig figs when small. it'll say 1.2fps and 0.50fps</li>
+                        <li>I hacked in some collapse/expand tech into my static box layout that I use all over the place and tentatively turned it on, and defaulting to collapsed, in the bigger _review services_ sub-panels. the giganto-tall repository panel is now much shorter by default, making the rest of the pages more normal sized on first open. let's see how it goes, and I expect I'll put it elsewhere too and add collapse memory and stuff if that makes sense</li>
+                        <li>the 'copy service key' on _review services_ panels is now hidden behind advanced mode</li>
+                        <li>tweaked some layout sizers for some spinboxes (the number controls that have an up/down arrow on the side) and my 'noneable' spinboxes so they aren't so width-hesitant. they were not showing their numbers fully on some styles where the arrows were particularly wide. they mostly size stupidly wide now, but at least that lines up with pretty much everything else so the number of stupid layout problems we are dealing with has reduced by one</li>
+                        <li>the frame locations list under `options-&gt;gui` has four new buttons to mass-set 'remember size/position' and 'reset last size/position' to all selected</li>
+                        <li>max implicit system:limit in `options-&gt;search` is raised from 100 thousand to 100 million</li>
+                        <li>if there is a critical drive problem when adding a file to the file structure, the exact error is now spammed to a popup and log. previously, it was just propagated up to the caller</li>
+                        <li><h3>advanced parsing</h3></li>
+                        <li>I messed up the 'hex' and 'base64' decode stuff last week. we used to have hex and base64 decode back in python 2 to do some hash conversion stuff, but it was overhauled into the content parser hash type dropdown and the explict conversion was deprecated to a no-op. last week, I foolishly re-used the same ids when I revived the decoding functionality, which caused a bunch of old parsers like gelbooru 0.2.5, e621, 4chan, and likely others, which still had the no-op, to suddenly hex- or base-64-afy their parsed hashes, breaking the parse and lookup</li>
+                        <li>this week I redefined the hacky enums and generally cleaned this code, and **I am deleting all hex and base64 string conversion decodes from all pre-596 parsers**. this fixes all the old downloaders by explicitly deleting the no-op so it won't trouble us again</li>
+                        <li>if you made a string converter in v595 that decodes hex or base64, that encoding step will be deleted, sorry! I have to ask you to re-make it</li>
+                        <li><h3>advanced db maintenance</h3></li>
+                        <li>added a 'connect.bat' (and .sql file) to the db dir to make it easy to load up the whole database with 'correct' ATTACHED schema names in the sqlite3 terminal</li>
+                        <li>added `database-&gt;db maintenance-&gt;get tables using definitions`, which uses the long-planned database module rewrite maintenance tech ( basically a faux foreign key) to fetch every table that uses hash_ids or tag_ids along with the specific column name that uses the id. this will help with various advanced maintenance jobs where we need to clear off a particular master definition to, as for instance happened this week, reset a super-huge autoincrement value on the master hashes table. this same feature will eventually trim client.master.db by discovering which master definitions are no longer used anywhere (e.g. after PTR delete)</li>
+                        <li><h3>client api</h3></li>
+                        <li>thanks to the continuing efforts of the user making Ugoira improvements, the Client API's `/get_files/render` call will now render an Ugoira to apng or animated webp. note the apng conversion appears to take a while, so make sure you try both formats to see what you prefer</li>
+                        <li>fixed a critical bug in the Client API where if you used the `file_id(s)` request parameter, and gave novel ids, the database was hitting emergency repair code and filling in the ids with pseudorandom recovery hashes. this wasn't such a huge deal, but if you put a very high number in, the autoincrement `hash_id` of the hashes table would then move up to there, and if the number was sufficiently high, SQLite would have trouble because of max integer limits and all kinds of stuff blew up. asking about a non-existent `file_id` will now raise a 404, as originally intended</li>
+                        <li>refactored the note set/delete calls, which were doing their own thing, to use the unified hash-parsing routine with the new safety code</li>
+                        <li>if the Client API is ever asked about a hash_id that is negative or over a ~quadrillion (1024^5), it now throws a special error</li>
+                        <li>as a backup, if the Client DB is ever asked about a novel hash_id that is negative or over a ~quadrillion (1024^5), it now throws a special error rather than trigger the pseudorandom hash recovery code</li>
+                        <li>the Client API version is now 74</li>
+                        <li><h3>boring duplicates auto-resolution stuff</h3></li>
+                        <li>fleshed out the duplicates auto-resolution manager and plugged it into the main controller. the mainloop boots and exits now, but it doesn't do anything yet</li>
+                        <li><h3>boring cleanup</h3></li>
+                        <li>updated the multiple-file warning in the edit file urls dialog</li>
+                        <li>gave the Client API _review services_ panel a very small user-friendliness pass</li>
+                        <li>I converted more old multi-column list display/sort generation code from the old bridge to the newer, more efficient separated calls for 10 of the remaining 43 lists to do</li>
+                        <li>via some beardy-but-I-think-it-is-ok typedefs, all the managers and stuff that take the controller as a param now use the new 'only import when linting' `ClientGlobals` Controller type, all unified through that one place, and in a way that should be failsafe, making for much better linting in any decent IDE. I didn't want to spam the 'only import when linting' blocks everywhere, so this was the compromise</li>
+                        <li>deleted the `interface` modules with the Controller interface gubbins. this was an _ok_ start of an idea, but the new Globals import trick makes it redundant</li>
+                        <li>pulled and unified a bunch of the common `ManagerWithMainLoop` code up to the superclass and cleaned up all the different managers a bit</li>
+                        <li>deleted `ClientMaintenance.py`, which was an old attempt to unify some global maintenance daemons that never got off the ground and I had honestly forgotten about</li>
+                        <li>moved responsibility for the `remote_thumbnails` table to the Client Repositories DB module; it is also now plugged into the newer content type maintenance system</li>
+                        <li>moved responsibility for the `service_info` table to the Client Services DB module</li>
+                        <li>the only CREATE TABLE stuff still in the old Client DB creation method is the version table and the old YAML options structure, so we are essentially all moved to the new modules now</li>
+                        <li>fixed some bugs/holes in the table definition reporting system after playing with the new table export tool (some bad sibling/parent tables, wrongly reported deferred tables, missing notes_map and url_map due to a bad content type def, and the primary master definition tables, which I decided to include). I'm sure there are some more out there, but we are moving forward on a long-term job here and it seems to work</li>
+                    </ul>
+                </li>
+                <li>
                     <h2 id="version_595"><a href="#version_595">version 595</a></h2>
                     <ul>
                         <li><h3>ugoiras</h3></li>
