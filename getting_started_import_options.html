@@ -800,6 +800,84 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#some_simple_examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Some simple examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Some simple examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reimporting_deleted_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reimporting deleted files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sending_tags_somewhere_else" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sending tags somewhere else
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#redownloading_tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Redownloading tags
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Redownloading tags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the_easy_way" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The easy way
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the_manual_way" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The manual way
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the_defaults_system" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -909,6 +987,17 @@
     <span class="md-ellipsis">
       
         Favourites/Templates and Copy/Paste
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#an_url_class_example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An URL Class Example
       
     </span>
   </a>
@@ -2804,6 +2893,84 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#some_simple_examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Some simple examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Some simple examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reimporting_deleted_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reimporting deleted files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sending_tags_somewhere_else" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sending tags somewhere else
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#redownloading_tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Redownloading tags
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Redownloading tags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the_easy_way" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The easy way
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the_manual_way" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The manual way
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the_defaults_system" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2920,6 +3087,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#an_url_class_example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An URL Class Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#advanced_url_class_logic" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2984,16 +3162,60 @@
 <li><strong>Presentation Import Options</strong>: This tells an importer which of the files it successfully imports it should show in UI. Edit this if you don't want to see, say, files that were already in your database.</li>
 </ul>
 <p>Every single import has every one of these, but in many cases the specific options set will have nothing interesting to say or the import may not need to consult it. A local file import, from your hard drive, will not consider the Prefetch Import Options.</p>
+<h2 id="some_simple_examples">Some simple examples<a class="headerlink" href="#some_simple_examples" title="Permanent link">&para;</a></h2>
+<p>Before we get into the complex stuff, let's look at some simple scenarios:</p>
+<h3 id="reimporting_deleted_files">Reimporting deleted files<a class="headerlink" href="#reimporting_deleted_files" title="Permanent link">&para;</a></h3>
+<p>Let's say you imported a folder of images yesterday and deleted some things, and now you realise you deleted things you didn't mean to. You recover the original files from your recycle bin, and you want to re-import them all to try the whole thing over again, but when you actually try to import them to hydrus, it says 'previously deleted'. What do you do?</p>
+<p>Every importer has an 'import options' button somewhere. Click it, and you will see how that importer is set up at the moment. Every importer starts in an 'all default' state, which means it uses all the stuff set up in <code>options-&gt;import options</code>.</p>
+<p><a href="images/import_options_example_1_1.png"><img alt="" src="images/import_options_example_1_1.png" /></a></p>
+<p>The defaults exclude previously deleted files, which we want to override. Click that 'use the default import options' dropdown, and select 'use custom import options'. It will load up whatever the defaults actually were, which you can then edit. Here, we uncheck the checkbox to allow previously deleted files:</p>
+<p><a href="images/import_options_example_1_2.png"><img alt="" src="images/import_options_example_1_2.png" /></a></p>
+<p>Hit apply, and then proceed with the import. Any file that would have been recognised as being 'previously deleted' will now be imported.</p>
+<p>Note that the panel here says your 'Location Import Options' and 'Presentation Import Options' stay as 'default ... (global)'. Although we set one type of custom options here, we did not affect the others. This system is designed for setting up 'do everything as normal, except for this part' situations.</p>
+<h3 id="sending_tags_somewhere_else">Sending tags somewhere else<a class="headerlink" href="#sending_tags_somewhere_else" title="Permanent link">&para;</a></h3>
+<p>Let's say you have found a nice place to download from, but it has some pretty terrible tags. You decide you want to put those tags in a special place and filter out the bad stuff. You need to do a test download to test a new import options setup.</p>
+<p>By default, hydrus grabs all available tags from normal gallery-like sites and puts them in the 'downloader tags' local tag domain. For this example, we will say that you have hit up <code>services-&gt;manage services</code> and created a new local tag domain, "unreliable tags".</p>
+<p>Opening up a new gallery downloader page, here is our default state for 'tag import options':</p>
+<p><a href="images/import_options_example_2_1.png"><img alt="" src="images/import_options_example_2_1.png" /></a></p>
+<p>This says 'get everything the downloader provides and put it in "downloader tags"'. Let's update it:</p>
+<p><a href="images/import_options_example_2_2.png"><img alt="" src="images/import_options_example_2_2.png" /></a></p>
+<p>We:</p>
+<ul>
+<li>Unchecked 'get tags' for "downloader tags"</li>
+<li>Checked 'get tags' for "unreliable tags"</li>
+<li>Opened the tag filter for "unreliable tags", and--  <ul>
+<li>Unchecked 'namespaced' and 'unnamespaced' from the whitelist.</li>
+<li>Added "creator:", "series:", "character:" to the whitelist.</li>
+</ul>
+</li>
+</ul>
+<p>This tag import options will now take the creator, series, and character tags from the downloader and add them to "unreliable tags".</p>
+<h3 id="redownloading_tags">Redownloading tags<a class="headerlink" href="#redownloading_tags" title="Permanent link">&para;</a></h3>
+<p>Let's say you have a nice tag parsing setup, but it took a few experiments to get there. You try to run a gallery search for a second time, trying to get the correct tags for some files you downloaded before, but rather than adding tags to those files, it just skips through the list real quick, setting the file results as 'already in db' with no changes. What to do?</p>
+<h4 id="the_easy_way">The easy way<a class="headerlink" href="#the_easy_way" title="Permanent link">&para;</a></h4>
+<p>Just select the files and hit <code>right-click-&gt;force metadata refetch-&gt;these files' x urls</code>.</p>
+<h4 id="the_manual_way">The manual way<a class="headerlink" href="#the_manual_way" title="Permanent link">&para;</a></h4>
+<p>Open up the prefetch import options:</p>
+<p><a href="images/import_options_example_3_1.png"><img alt="" src="images/import_options_example_3_1.png" /></a></p>
+<p>Checking the two 'force metadata refetch even if hash/url...' settings tells hydrus 'even if you are confident you have the file already, I want the downloader to grab any associated html/xml/json data it can fetch, like it normally would for a new file'. The downloader will not redownload the file itself--that's what the top two settings control--but it will run a little slower as it fetches some data from the site. Usually about one second per file.</p>
+<p>Each import object now will be populated with tags and notes and source times and so on from the site itself before it is assigned 'already in db'. When a file import job is finishing up (no matter whether it was successful, already in db, or previously deleted), it looks at the metadata it has learned and saves it to that file according to its import options.</p>
+<p>If you do a 'force metadata refetch' from the thumbnail menu, you'll see it sets exactly these Prefetch Import Options up for you.</p>
+<div class="admonition warning">
+<p class="admonition-title">ONLY SET THIS FOR ONE-TIME JOBS</p>
+<p>Hydrus skips work for good reason. Redownloading metadata is wasteful and rarely produces anything new; redownloading files even moreso.</p>
+<p>The only time it is appropriate to set these options is when a previous download job had bad settings or you know that the URL store is messed up for n files and thus the 'already in db/previously deleted' outcomes you are getting are false positive. This panel holds the exceptional, "no, just do it anyway" tools, and they should be used sparingly.</p>
+</div>
 <h2 id="the_defaults_system">The Defaults System<a class="headerlink" href="#the_defaults_system" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
 <p class="admonition-title">You are in control</p>
 <p>This is another one of those hydrus systems that has some reasonable defaults but is very user-configurable. You can go down a rabbit hole here, and I won't stop you. Some people need the specificity of URL Class Import Options; most do not. Figure out what works for your situation, and don't put time into anything that isn't broken.</p>
 </div>
-<p>So, how are these Import Options set up for a particular file import? It would be too annoying to set up a whole set of import options every time for each new importer, so instead Hydrus has a sophisticated <em>defaults</em> system, where the different types of import can all add their suggestion on what they thing should happen, so you might say 'in general, all imports should send files to "my files"' and 'in general, all gallery downloads should grab all available tags and send them here'. At the moment of import, the system looks at what is going on, for instance, "we are importing from this URL through this type of page", looks at which suggestions are the most appropriate, and freezes a mix-and-match of the various defined default settings and goes ahead.</p>
+<p>You obviously do not want to set up a custom tag import options every time you open up a new gallery page, so, how are the default Import Options set up for a particular file import? There are not one set of defaults, but instead several <em>layers</em>, where the different types of import can all add their suggestion on what they think should happen. They might say 'in general, all imports should send files to "my files"' and 'in general, all gallery downloads should grab all available tags and send them here' while simultaneously, in a different place, saying 'in general, watcher downloads should not grab any tags'. At the moment of import, the system looks at what is going on, for instance, "we are importing from this URL through a subscription", looks at which suggestions are the most appropriate, and freezes a mix-and-match of the various defaults and goes ahead.</p>
 <p><strong>Importantly</strong>, a setting here can abstain, saying, for instance: "subscriptions have no custom note import options". When a layer of options says this, which it does by saying 'use default', it is telling the system to defer to the next most general layer for actual settings to use. Most of the options structure starts like this, not setting anything, and thus most imports will by default use the base 'global' settings.</p>
 <p>The 'global' set of Import Options are the backstop that will be used if nothing else involved has any custom Import Options set. The different layers of import type are placed atop the global set, each more specific than the last, and the top-most layer that has a value for each option type is the one selected for the actual import. It is all arranged in a preference stack, like so:</p>
 <p><a href="images/import_options_stack_chart_1.png"><img alt="" src="images/import_options_stack_chart_1.png" /></a></p>
-<p>This is the default situation for a local hard drive import page. By default, the 'local hard drive import' type has no custom options. Similarly, while every new import context has a "specific import options" attached that <em>can</em> override the defaults, it starts empty every time. Imagine, though, if you did this (and let's say unchecking the 'exclude deleted' checkbox):</p>
+<p>This is the default situation for a local hard drive import page. By default, the 'local hard drive import' type has no custom options.</p>
+<p>Recall our simple example from before, where we set to allow previously deleted files. This was achieved by setting the "specific import options" that each downloader holds:</p>
 <p><a href="images/import_options_setting_specific_file_filtering.png"><img alt="" src="images/import_options_setting_specific_file_filtering.png" /></a></p>
 <p>When you apply that, note the button label changes to:</p>
 <p><a href="images/import_options_setting_specific_file_filtering_aftermath.png"><img alt="" src="images/import_options_setting_specific_file_filtering_aftermath.png" /></a></p>
@@ -3083,6 +3305,15 @@
 <p>If you need to set up the same options for twelve URL Classes in a row, set up exactly what you want for one of them and then 'copy' and use the 'replace-paste' on a selection of the rest.</p>
 <p>If you have a common setup (for instance, 'import to x local file domain and auto-archive', save it to your favourites! You can load it up quickly to any importer:</p>
 <p><a href="images/import_options_favourites_load.png"><img alt="" src="images/import_options_favourites_load.png" /></a></p>
+<h2 id="an_url_class_example">An URL Class Example<a class="headerlink" href="#an_url_class_example" title="Permanent link">&para;</a></h2>
+<p>Let's say you want to set up tag parsing for a particular site. Maybe you also want to add a tag to say that a file came from that site. Let's do it:</p>
+<p><a href="images/import_options_example_4_1.png"><img alt="" src="images/import_options_example_4_1.png" /></a></p>
+<p>URL Class defaults override everything except the custom settings a specific downloader might have, so now, any time a normal, 'use the defaults' URL Downloader Page, Gallery Downloader Page, or Subscription works on an URL that matches that URL Class, it will use those altered Tag Import Options, and the 'source:somebooru' will be added. You could similarly set a custom tag blacklist, choose a different import location, exclude all large gifs--whatever makes sense for that site.</p>
+<p>If another site has similar needs, you can copy/paste easily:</p>
+<p><a href="images/import_options_example_4_2.png"><img alt="" src="images/import_options_example_4_2.png" /></a></p>
+<p>As I say above, the pasting can get complicated if you need to do a clever merge, but <code>replace-paste</code> works fine when you just need to make the thing you are pasting into look exactly like the thing you copied from.</p>
+<p>In this case, of course, you'd probably want to go in and edit that Tag Import Options to add 'source:otherbooru' instead. When you set up custom import options on URL Classes, be careful of falling into a trap of things like 'source:site'--it may sound good to start, but you might just be making a lot more work for yourself, when simply using 'system:known url: otherbooru file page' would have done the job.</p>
+<p>Keep things simple!</p>
 <h2 id="advanced_url_class_logic">Advanced URL Class Logic<a class="headerlink" href="#advanced_url_class_logic" title="Permanent link">&para;</a></h2>
 <p>When the system checks for a URL Class record, it tries several possibilities, and the first match gets set as the vote from the URL Class slice of the stack. It works in this order:</p>
 <ul>
@@ -3126,7 +3357,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 11, 2026 22:22:47 UTC">May 11, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 20, 2026 19:49:53 UTC">May 20, 2026</span>
   </span>
 
     
