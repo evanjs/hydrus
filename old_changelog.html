@@ -35,6 +35,47 @@
             <h1 id="changelog"><a href="#changelog">changelog</a></h1>
             <ul>
                 <li>
+                    <h2 id="version_673"><a href="#version_673">version 673</a></h2>
+                    <ul>
+                        <li><h3>misc</h3></li>
+                        <li>the file history chart now has a custom y axis range. also, the chart now remembers if you have set either axis custom and new searches will auto-refit or maintain current dimensions as appropriate. hide/showing the lines will only recalculate the non-user-customised Y axis; let's see how that goes</li>
+                        <li>added a sanity check to the new fast 'give me the average character width' calculation, which is used for some scaling-agnostic UI sizing. one user (on a monospaced font, no less) had extremely wide average character width; I guess the font has funny kerning or extended characters or something. if the average character width is more than twice the reported height (which appears to be more reliable), I now fall back to a slower but more accurate calculation</li>
+                        <li>you can now edit the Access Key of a Client API permissions entry (a user mentioned they were migrating to a new client and updating every existing script to use new random keys was a pain). since you don't want to do this casually, it works through a button that gives a little spiel and tests the new key for validity and such, and the final ok will bail out if you paste something already in the system</li>
+                        <li>updated some system predicate parsing to support `&lt;=` and `&gt;=` operators, along with some variants like 'less than or equal to'. the types now supporting this are: width, height, duration, number of frames, number of words (issue #2019)</li>
+                        <li><h3>new help docs for the recovery.txts</h3></li>
+                        <li>added a 'Recovery' headline section to the help and migrated the .txt recovery docs to basic markdown</li>
+                        <li>the basedir 'help my client will not boot' is migrated to here</li>
+                        <li>all the .txts in the db dir like 'help my db is broke.txt' are migrated to here</li>
+                        <li>as planned, the `static/db_files` dir is removed. you no longer get a bunch of .txts in any new db folder. feel free to delete any old ones you have, but it isn't a big deal</li>
+                        <li><h3>local file parsing optimisation</h3></li>
+                        <li>when you drop a folder on the program, the main scan of that folder is a good bit faster than before and will scale a bit better</li>
+                        <li>when you drop a folder on the program, symlink loops are now recognised and broken out of</li>
+                        <li>when parsing import files from a folder, the main parse object now uses several fewer drive hits</li>
+                        <li>checking for 'file is in use' requires one less drive hit</li>
+                        <li><h3>faster folder checking on startup</h3></li>
+                        <li>when hydrus boots, it checks for the presence of all file storage folders. on a normal client, this is 512 directory presence checks; on an advanced granularity 3 system, this is 8192. this time adds up on boot, particularly on a cold HDD. I have improved the regular test here to do just one hard drive hit per folder instead of two. also, especially for the bootup phase, these locations are now scanned for _en masse_ with a carefully efficient/failsafe top-level scan on the main storage locations, massively reducing the number of hard drive hits required here</li>
+                        <li><h3>optimised caching tech</h3></li>
+                        <li>a user identified that a hacky id-to-value lookup cache used in tag and hash database modules was not working great. under certain types of strain, it would churn, leading to memory bloat and fragmentation</li>
+                        <li>I have tried several solutions and figured out a fairly decent replacement (LRU cache, nothing crazy) that will not churn so much and has less overhead. there's some additional long-term work that needs to be done to solve the bloat problem fully (full weakref tracking of tags/hashes), but I'm overall happy. tag and hash fetching when you load media or do various other heavy database jobs is now a little more optimised in several ways, and in most cases causes less memory duplication and fragmentation</li>
+                        <li>while I was poking around here, I also overhauled the general LRU cache used by a bunch of UI-level guys. thumbnail refetch and image zooming back and forth may be a shave faster</li>
+                        <li><h3>source environment cleanup</h3></li>
+                        <li>as planned a few months ago, v673 cleans up the 'running from source' setup significantly. you shouldn't have to do anything unless you run from source and use a custom script to automatically recreate your venv. I delete some old redundant scripts today, so if you happened to set an executable permission on something a long time ago, git may moan at you about being unable to pull because of your pending changes. deleting the files and then pulling again should work</li>
+                        <li>the pyproject.toml file no longer has any groups. there's one setup, nice and simple. the venue to test alternate library versions is now `setup_venv.py` exclusively</li>
+                        <li>the old basedir requirements.txt is now removed</li>
+                        <li>the manual 'running from source' help is updated. you now do just `pip install .` for a manual, pyproject.toml based pip install, with no groups needed</li>
+                        <li>the .bat/.command/.sh versions of `setup_help` and `setup_venv` and `git_pull` are removed--use the multiplat .py files from now on</li>
+                        <li>the `open_venv.bat/.ps1` scripts and `auto_update_installer.bat`, which were just fun experiments, are deleted. if you need some rinky-dink scripts to pull off a very custom thing like this, I recommend talking to an AI to get exactly what you need for your setup</li>
+                        <li>to improve hydrus package security, all dependency versions in the pyproject.toml and setup_venv.py and the build requirement.txts are now pinned/capped to recent latest versions. anything that was `&gt;=` is now `&lt;=` for the version as of the 672 build. all library version updates will now be considered manually by human eyes in future builds</li>
+                        <li>relatedly, the windows ffmpeg version is no longer latest but pinned at `8.1.1`</li>
+                        <li>deduped the basedir license files and renamed to `LICENSE`</li>
+                        <li>wrote a very basic `CONTRIBUTING.md` to mention that public pulls are closed right now</li>
+                        <li>for KISS, I'll switch the builds from their requirements.txts over to the pyproject.toml in the next future build test</li>
+                        <li><h3>boring cleanup</h3></li>
+                        <li>moved some file parsing code out of `ClientGUILocalFileimports` to `ClientImportFileParse`</li>
+                        <li>jiggled some 'make this panel x characters wide' numbers after last week's character-width update. this generally meant clearing out old +2 padding hacks and shaving some 64 to 60, that sort of thing, and I fixed a couple of things that were a little out of whack or sizing the wrong widget</li>
+                    </ul>
+                </li>
+                <li>
                     <h2 id="version_672"><a href="#version_672">version 672</a></h2>
                     <ul>
                         <li><h3>misc</h3></li>
